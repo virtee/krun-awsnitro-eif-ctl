@@ -223,14 +223,12 @@ pub mod build {
     }
 
     fn build_info(args: &BuildArgs) -> Result<EifIdentityInfo> {
-        let kernel_name = {
-            let path = format!("{}", args.kernel.display());
-
-            let mut sub: Vec<String> = path.split('/').map(|s| s.to_string()).collect();
-
-            sub.pop()
-        }
-        .context("unable to get kernel name for EIF build info")?;
+        let kernel_name = args
+            .kernel
+            .file_name()
+            .context("unable to get kernel name for EIF build info")?
+            .to_str()
+            .context("invalid kernel name for EIF build info")?;
 
         let datetime: DateTime<Utc> = SystemTime::now().into();
         let version = env!("CARGO_PKG_VERSION").to_string();
@@ -243,7 +241,7 @@ pub mod build {
                 build_tool: "krun-awsnitro-eif-ctl".to_string(),
                 build_tool_version: version,
                 img_os: "n/a".to_string(),
-                img_kernel: kernel_name,
+                img_kernel: kernel_name.to_string(),
             },
             docker_info: Value::Null,
             custom_info: Value::Null,
