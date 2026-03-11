@@ -182,6 +182,9 @@ pub mod build {
         /// Path to write the EIF image to.
         #[arg(short, long, default_value = "/etc/krun-awsnitro/krun-awsnitro.eif")]
         path: PathBuf,
+        /// Show PCR measurements
+        #[arg(long, default_value = "false")]
+        show_measurements: bool,
     }
 
     pub(super) fn build(args: BuildArgs) -> Result<()> {
@@ -217,7 +220,10 @@ pub mod build {
             .open(args.path)
             .context("failed to create output file")?;
 
-        build.write_to(&mut output);
+        let measurements = build.write_to(&mut output);
+        if args.show_measurements {
+            println!("{:#?}", measurements);
+        }
 
         Ok(())
     }
